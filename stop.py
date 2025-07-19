@@ -7,6 +7,7 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime
+from sound_manager import SoundManager
 
 # Load Discord webhook from .env file
 def load_discord_webhook():
@@ -32,34 +33,8 @@ def load_discord_webhook():
 
 DISCORD_WEBHOOK_URL = load_discord_webhook()
 
-# Play sound based on OS
-def play_sound():
-    system = platform.system()
-    try:
-        if system == "Darwin":  # macOS
-            subprocess.run(["afplay", "/System/Library/Sounds/Hero.aiff"], check=True)
-        elif system == "Windows":
-            subprocess.run(["powershell", "-c", "[System.Media.SystemSounds]::Asterisk.Play()"], check=True)
-        elif system == "Linux":
-            # Try multiple sound options for Linux
-            sound_commands = [
-                ["paplay", "/usr/share/sounds/alsa/Front_Center.wav"],
-                ["aplay", "/usr/share/sounds/alsa/Front_Center.wav"],
-                ["speaker-test", "-t", "sine", "-f", "1000", "-l", "1"],
-                ["beep", "-f", "1000", "-l", "300"],
-                ["echo", "-e", "\\a"]  # Terminal bell as last resort
-            ]
-            
-            for cmd in sound_commands:
-                try:
-                    subprocess.run(cmd, check=True, capture_output=True)
-                    break
-                except (subprocess.CalledProcessError, FileNotFoundError):
-                    continue
-            else:
-                print("No sound command available on this Linux system")
-    except Exception as e:
-        print(f"Error playing sound: {e}")
+# Initialize sound manager
+sound_manager = SoundManager()
 
 # Send Discord message with retry logic and rich formatting
 def send_discord_message_with_retry(content, embed_data=None, max_retries=3):
@@ -250,7 +225,7 @@ if __name__ == "__main__":
     
     # Play sound
     print("🔊 Playing notification sound...")
-    play_sound()
+    sound_manager.play_sound("warning")  # Use warning sound for stop events
     
     # Send Discord message with retry logic
     print("📤 Sending Discord notification...")

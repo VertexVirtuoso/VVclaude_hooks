@@ -7,6 +7,7 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime
+from sound_manager import SoundManager
 
 # Load Discord webhook from .env file
 def load_discord_webhook():
@@ -32,34 +33,8 @@ def load_discord_webhook():
 
 DISCORD_WEBHOOK_URL = load_discord_webhook()
 
-# Play sound based on OS
-def play_sound():
-    system = platform.system()
-    try:
-        if system == "Darwin":  # macOS
-            subprocess.run(["afplay", "/System/Library/Sounds/Hero.aiff"], check=True)
-        elif system == "Windows":
-            subprocess.run(["powershell", "-c", "[System.Media.SystemSounds]::Asterisk.Play()"], check=True)
-        elif system == "Linux":
-            # Try multiple sound options for Linux
-            sound_commands = [
-                ["paplay", "/usr/share/sounds/alsa/Front_Center.wav"],
-                ["aplay", "/usr/share/sounds/alsa/Front_Center.wav"],
-                ["speaker-test", "-t", "sine", "-f", "1000", "-l", "1"],
-                ["beep", "-f", "1000", "-l", "300"],
-                ["echo", "-e", "\\a"]  # Terminal bell as last resort
-            ]
-            
-            for cmd in sound_commands:
-                try:
-                    subprocess.run(cmd, check=True, capture_output=True)
-                    break
-                except (subprocess.CalledProcessError, FileNotFoundError):
-                    continue
-            else:
-                print("No sound command available on this Linux system")
-    except Exception as e:
-        print(f"Error playing sound: {e}")
+# Initialize sound manager
+sound_manager = SoundManager()
 
 # Send Discord message with retry logic and rich formatting
 def send_discord_message_with_retry(content, embed_data=None, max_retries=3):
@@ -161,12 +136,79 @@ def gather_system_context():
     
     return context
 
-def create_rich_notification(hook_input, context):
+def analyze_task_type(hook_input, context):
+    """Analyze session data to determine task type and appropriate sound"""
+    try:
+        # Get any available context
+        session_id = hook_input.get('session_id', '')
+        tools_used = hook_input.get('tools_used', [])
+        working_dir = context.get('working_directory', '')
+        
+        # Convert tools to string for analysis
+        tools_str = ' '.join(tools_used) if isinstance(tools_used, list) else str(tools_used)
+        
+        # Analyze for research/analysis activities
+        research_keywords = [
+            'search', 'find', 'analyze', 'research', 'investigate', 'explore',
+            'understand', 'explain', 'review', 'examine', 'study', 'grep',
+            'glob', 'read', 'check', 'inspect', 'discover', 'identify',
+            'Grep', 'Read', 'LS', 'Task', 'WebFetch', 'WebSearch'
+        ]
+        
+        # Analyze for implementation activities  
+        implementation_keywords = [
+            'implement', 'create', 'build', 'develop', 'write', 'code',
+            'add', 'modify', 'update', 'fix', 'refactor', 'enhance',
+            'install', 'setup', 'configure', 'deploy', 'commit',
+            'Edit', 'MultiEdit', 'Write', 'NotebookEdit'
+        ]
+        
+        # Analyze for testing activities
+        testing_keywords = [
+            'test', 'run', 'execute', 'validate', 'verify', 'check',
+            'debug', 'troubleshoot', 'diagnose', 'Bash'
+        ]
+        
+        # Convert to lowercase for comparison
+        text_to_analyze = f"{session_id} {tools_str} {working_dir}".lower()
+        
+        # Count keyword matches
+        research_score = sum(1 for word in research_keywords if word.lower() in text_to_analyze)
+        implementation_score = sum(1 for word in implementation_keywords if word.lower() in text_to_analyze)
+        testing_score = sum(1 for word in testing_keywords if word.lower() in text_to_analyze)
+        
+        print(f"🔍 Task analysis: Research={research_score}, Implementation={implementation_score}, Testing={testing_score}")
+        print(f"📝 Analyzed text: {text_to_analyze[:100]}...")
+        
+        # Determine primary task type
+        if implementation_score > research_score and implementation_score > testing_score:
+            return "implementation_complete"
+        elif testing_score > research_score and testing_score > implementation_score:
+            return "testing_complete"
+        elif research_score > 0:
+            return "research_complete"
+        else:
+            # Default to implementation for general completion
+            return "implementation_complete"
+            
+    except Exception as e:
+        print(f"❌ Error analyzing task type: {e}")
+        return "success"  # fallback
+
+def create_rich_notification(hook_input, context, task_type="implementation_complete"):
     """Create rich notification with context"""
     session_id = hook_input.get("session_id", "unknown")
     
-    # Create main message
-    main_message = f"🎉 **Claude Code Task Completed!**"
+    # Create task-specific message
+    task_messages = {
+        "research_complete": "🔍 **Claude Code Research Completed!**",
+        "implementation_complete": "⚙️ **Claude Code Implementation Completed!**", 
+        "analysis_complete": "📊 **Claude Code Analysis Completed!**",
+        "testing_complete": "🧪 **Claude Code Testing Completed!**",
+        "success": "🎉 **Claude Code Task Completed!**"
+    }
+    
+    main_message = task_messages.get(task_type, task_messages["success"])
     
     # Create embed with detailed information
     embed = {
@@ -253,13 +295,18 @@ if __name__ == "__main__":
     print("🔍 Gathering system context...")
     context = gather_system_context()
     
+    # Analyze task type for appropriate sound
+    print("🔍 Analyzing task type...")
+    sound_type = analyze_task_type(hook_input, context)
+    print(f"🎵 Selected sound type: {sound_type}")
+    
     # Create rich notification
     print("✨ Creating rich notification...")
-    main_message, embed = create_rich_notification(hook_input, context)
+    main_message, embed = create_rich_notification(hook_input, context, sound_type)
     
-    # Play sound
-    print("🔊 Playing notification sound...")
-    play_sound()
+    # Play appropriate sound based on task type
+    print(f"🔊 Playing {sound_type} notification sound...")
+    sound_manager.play_sound(sound_type)
     
     # Send Discord message with retry logic
     print("📤 Sending Discord notification...")

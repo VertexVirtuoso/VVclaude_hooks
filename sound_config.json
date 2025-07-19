@@ -1,0 +1,159 @@
+{
+  "sound_settings": {
+    "enabled": true,
+    "volume": 80,
+    "notification_type": "system_default"
+  },
+  "sounds": {
+    "success": {
+      "linux": [
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/upgrade_complete.wav"],
+          "description": "PulseAudio - Front Center"
+        },
+        {
+          "command": ["aplay", "/usr/share/sounds/alsa/Front_Center.wav"],
+          "description": "ALSA - Front Center"
+        },
+        {
+          "command": ["paplay", "/usr/share/sounds/freedesktop/stereo/complete.oga"],
+          "description": "FreeDesktop Complete Sound"
+        },
+        {
+          "command": ["speaker-test", "-t", "sine", "-f", "800", "-l", "1"],
+          "description": "Speaker test - 800Hz tone"
+        },
+        {
+          "command": ["beep", "-f", "800", "-l", "300"],
+          "description": "System beep - 800Hz"
+        },
+        {
+          "command": ["echo", "-e", "\\a"],
+          "description": "Terminal bell"
+        }
+      ],
+      "macos": [
+        {
+          "command": ["afplay", "/System/Library/Sounds/Hero.aiff"],
+          "description": "Hero sound"
+        },
+        {
+          "command": ["afplay", "/System/Library/Sounds/Glass.aiff"],
+          "description": "Glass sound"
+        },
+        {
+          "command": ["afplay", "/System/Library/Sounds/Ping.aiff"],
+          "description": "Ping sound"
+        }
+      ],
+      "windows": [
+        {
+          "command": ["powershell", "-c", "[System.Media.SystemSounds]::Asterisk.Play()"],
+          "description": "Windows Asterisk"
+        },
+        {
+          "command": ["powershell", "-c", "[System.Media.SystemSounds]::Question.Play()"],
+          "description": "Windows Question"
+        }
+      ]
+    },
+    "error": {
+      "linux": [
+        {
+          "command": ["speaker-test", "-t", "sine", "-f", "400", "-l", "2"],
+          "description": "Low tone - error indication"
+        },
+        {
+          "command": ["beep", "-f", "400", "-l", "500"],
+          "description": "Low beep - error"
+        },
+        {
+          "command": ["echo", "-e", "\\a\\a"],
+          "description": "Double terminal bell"
+        }
+      ],
+      "macos": [
+        {
+          "command": ["afplay", "/System/Library/Sounds/Sosumi.aiff"],
+          "description": "Sosumi sound"
+        }
+      ],
+      "windows": [
+        {
+          "command": ["powershell", "-c", "[System.Media.SystemSounds]::Hand.Play()"],
+          "description": "Windows Error Hand"
+        }
+      ]
+    },
+    "warning": {
+      "linux": [
+        {
+          "command": ["speaker-test", "-t", "sine", "-f", "600", "-l", "1"],
+          "description": "Medium tone - warning"
+        },
+        {
+          "command": ["beep", "-f", "600", "-l", "200"],
+          "description": "Medium beep - warning"
+        }
+      ],
+      "macos": [
+        {
+          "command": ["afplay", "/System/Library/Sounds/Tink.aiff"],
+          "description": "Tink sound"
+        }
+      ],
+      "windows": [
+        {
+          "command": ["powershell", "-c", "[System.Media.SystemSounds]::Exclamation.Play()"],
+          "description": "Windows Exclamation"
+        }
+      ]
+    },
+    "research_complete": {
+      "linux": [
+        {
+          "command": ["paplay", "/usr/share/sounds/freedesktop/stereo/dialog-information.oga"],
+          "description": "Research completion - information sound"
+        },
+        {
+          "command": ["speaker-test", "-t", "sine", "-f", "1000", "-l", "1"],
+          "description": "High tone - research complete"
+        }
+      ]
+    },
+    "implementation_complete": {
+      "linux": [
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/upgrade_complete.wav"],
+          "description": "Implementation complete - custom sound"
+        }
+      ]
+    },
+    "analysis_complete": {
+      "linux": [
+        {
+          "command": ["paplay", "/usr/share/sounds/freedesktop/stereo/complete.oga"],
+          "description": "Analysis complete sound"
+        }
+      ]
+    },
+    "testing_complete": {
+      "linux": [
+        {
+          "command": ["speaker-test", "-t", "sine", "-f", "1200", "-l", "2"],
+          "description": "Testing complete - double tone"
+        }
+      ]
+    }
+  },
+  "custom_sounds": {
+    "enabled": true,
+    "sound_directory": "/home/charlie/.claude/hooks/audio/",
+    "formats": [".wav", ".mp3", ".ogg", ".aiff"],
+    "examples": {
+      "success": "upgrade_complete.wav",
+      "error": "error.wav",
+      "warning": "warning.wav"
+    }
+  }
+}

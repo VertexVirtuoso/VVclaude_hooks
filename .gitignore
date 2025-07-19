@@ -10,6 +10,14 @@ discord_bot_config.json
 .claude/command_queue.json
 .claude/processed_commands.json
 
+# Custom sound files (keep config, ignore custom audio files)
+sounds/
+*.wav
+*.mp3
+*.ogg
+*.aiff
+!sound_config.json
+
 # Python
 __pycache__/
 *.py[cod]
