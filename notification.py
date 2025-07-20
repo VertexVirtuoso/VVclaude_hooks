@@ -147,6 +147,18 @@ def analyze_task_type(hook_input, context):
         # Convert tools to string for analysis
         tools_str = ' '.join(tools_used) if isinstance(tools_used, list) else str(tools_used)
         
+        # Check for git-related activities first
+        git_keywords = ['commit', 'git', 'push', 'pull', 'merge', 'branch']
+        git_score = sum(1 for word in git_keywords if word.lower() in f"{session_id} {tools_str}".lower())
+        if git_score > 0:
+            return "commits_complete"
+        
+        # Check for error detection
+        error_keywords = ['error', 'bug', 'issue', 'problem', 'fail', 'exception', 'debug']
+        error_score = sum(1 for word in error_keywords if word.lower() in f"{session_id} {tools_str}".lower())
+        if error_score > 0:
+            return "error_found"
+        
         # Analyze for research/analysis activities
         research_keywords = [
             'search', 'find', 'analyze', 'research', 'investigate', 'explore',
@@ -159,7 +171,7 @@ def analyze_task_type(hook_input, context):
         implementation_keywords = [
             'implement', 'create', 'build', 'develop', 'write', 'code',
             'add', 'modify', 'update', 'fix', 'refactor', 'enhance',
-            'install', 'setup', 'configure', 'deploy', 'commit',
+            'install', 'setup', 'configure', 'deploy',
             'Edit', 'MultiEdit', 'Write', 'NotebookEdit'
         ]
         
@@ -186,14 +198,14 @@ def analyze_task_type(hook_input, context):
         elif testing_score > research_score and testing_score > implementation_score:
             return "testing_complete"
         elif research_score > 0:
-            return "research_complete"
+            return "analysis_complete"
         else:
             # Default to implementation for general completion
             return "implementation_complete"
             
     except Exception as e:
         print(f"❌ Error analyzing task type: {e}")
-        return "success"  # fallback
+        return "implementation_complete"  # fallback
 
 def create_rich_notification(hook_input, context, task_type="implementation_complete"):
     """Create rich notification with context"""

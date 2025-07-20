@@ -27,7 +27,7 @@ class BidirectionalStarter:
     def check_requirements(self) -> bool:
         """Check if all requirements are met"""
         # Check for .env file
-        env_file = Path.home() / ".env"
+        env_file = Path.home() / ".claude" / "hooks" / ".env"
         if not env_file.exists():
             logger.error(f"Environment file not found: {env_file}")
             return False

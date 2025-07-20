@@ -23,7 +23,8 @@ logger = logging.getLogger(__name__)
 # Configuration
 COMMAND_QUEUE_FILE = Path.home() / ".claude" / "command_queue.json"
 PROCESSED_COMMANDS_FILE = Path.home() / ".claude" / "processed_commands.json"
-CLAUDE_CODE_COMMAND = "claude-code"  # Adjust if your claude-code is installed differently
+CLAUDE_CODE_COMMAND = "claude-code"  # Update this to your actual Claude Code command
+# Examples: "claude", "/usr/local/bin/claude-code", "npx claude-cli"
 POLL_INTERVAL = 2  # seconds
 MAX_CONCURRENT_PROCESSES = 1  # Only run one Claude Code instance at a time
 
@@ -101,35 +102,38 @@ class ClaudeMonitor:
         try:
             logger.info(f"Executing command {command_id}: {command_text}")
             
-            # Construct Claude Code command
-            claude_cmd = [
-                CLAUDE_CODE_COMMAND,
-                "-p",  # Non-interactive mode
-                command_text
-            ]
-            
-            # Set up environment
-            env = os.environ.copy()
-            
-            # Execute command
-            process = subprocess.Popen(
-                claude_cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                env=env,
-                cwd=Path.home()  # Default to home directory
-            )
-            
-            # Store running process
-            self.running_processes[command_id] = process
-            
             # Mark as processed immediately to avoid duplicates
             self.processed_commands.add(command_id)
             self.save_processed_commands()
             
-            # Log command execution
-            logger.info(f"Started Claude Code for command {command_id}")
+            if self.claude_available:
+                # Real Claude Code execution
+                claude_cmd = [
+                    CLAUDE_CODE_COMMAND,
+                    "-p",  # Non-interactive mode
+                    command_text
+                ]
+                
+                # Set up environment
+                env = os.environ.copy()
+                
+                # Execute command
+                process = subprocess.Popen(
+                    claude_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    env=env,
+                    cwd=Path.home()  # Default to home directory
+                )
+                
+                # Store running process
+                self.running_processes[command_id] = process
+                logger.info(f"Started Claude Code for command {command_id}")
+            else:
+                # Test mode simulation
+                self.test_mode_simulation(command_text)
+                logger.info(f"Simulated execution completed for command {command_id}")
             
         except FileNotFoundError:
             logger.error(f"Claude Code command not found: {CLAUDE_CODE_COMMAND}")
@@ -150,19 +154,48 @@ class ClaudeMonitor:
         except (FileNotFoundError, subprocess.TimeoutExpired):
             return False
     
+    def test_mode_simulation(self, command_text: str):
+        """Simulate Claude Code execution for testing (when real claude-code isn't available)"""
+        logger.info(f"TEST MODE: Simulating Claude Code execution for: {command_text}")
+        
+        # Simulate a brief delay
+        import time
+        time.sleep(2)
+        
+        # Simulate some output
+        simulated_responses = {
+            "help": "This is a simulated Claude Code response for help command.",
+            "status": "Simulated git status: no changes detected.",
+            "explain": "Simulated explanation: This would be Claude's analysis of your code.",
+            "test": "Simulated test results: All tests passed successfully."
+        }
+        
+        # Find a matching response
+        response = "Simulated Claude Code response completed successfully."
+        for keyword, sim_response in simulated_responses.items():
+            if keyword in command_text.lower():
+                response = sim_response
+                break
+        
+        logger.info(f"TEST MODE: Simulated response: {response}")
+        return True
+    
     def run_monitor(self):
         """Main monitoring loop"""
         logger.info("Starting Claude Code command monitor")
         
         # Check if Claude Code is available
-        if not self.check_claude_code_available():
-            logger.error(f"Claude Code not available at: {CLAUDE_CODE_COMMAND}")
-            logger.error("Please install Claude Code or update the CLAUDE_CODE_COMMAND path")
-            return
+        claude_available = self.check_claude_code_available()
+        if not claude_available:
+            logger.warning(f"Claude Code not available at: {CLAUDE_CODE_COMMAND}")
+            logger.warning("Running in TEST MODE - commands will be simulated")
+            logger.warning("Update CLAUDE_CODE_COMMAND in this script when you have the correct path")
+        else:
+            logger.info(f"Claude Code is available at: {CLAUDE_CODE_COMMAND}")
         
-        logger.info(f"Claude Code is available at: {CLAUDE_CODE_COMMAND}")
         logger.info(f"Monitoring queue file: {COMMAND_QUEUE_FILE}")
         logger.info(f"Poll interval: {POLL_INTERVAL} seconds")
+        self.claude_available = claude_available
         
         try:
             while True:

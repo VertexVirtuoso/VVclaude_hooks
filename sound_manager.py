@@ -150,12 +150,18 @@ class SoundManager:
     
     def try_system_sounds(self, sound_type: str, verbose: bool = True) -> bool:
         """Try to play system sounds"""
+        import random
+        
         sound_commands = self.get_sound_commands(sound_type)
         
         if not sound_commands:
             if verbose:
                 print(f"⚠️  No sound commands available for {sound_type} on {self.system}")
             return False
+        
+        # For completion sounds with multiple options, randomly select one
+        if len(sound_commands) > 1 and sound_type in ["implementation_complete", "thinking", "error_found"]:
+            sound_commands = [random.choice(sound_commands)]
         
         for sound_config in sound_commands:
             try:

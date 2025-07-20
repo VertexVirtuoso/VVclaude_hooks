@@ -124,36 +124,88 @@
     "implementation_complete": {
       "linux": [
         {
-          "command": ["paplay", "/home/charlie/.claude/hooks/audio/upgrade_complete.wav"],
-          "description": "Implementation complete - custom sound"
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/finished.wav"],
+          "description": "Implementation finished"
+        },
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/Job done.wav"],
+          "description": "Job done"
+        },
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/good job.wav"],
+          "description": "Good job"
         }
       ]
     },
     "analysis_complete": {
       "linux": [
         {
-          "command": ["paplay", "/usr/share/sounds/freedesktop/stereo/complete.oga"],
-          "description": "Analysis complete sound"
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/I've analyzed it.wav"],
+          "description": "Analysis complete"
         }
       ]
     },
     "testing_complete": {
       "linux": [
         {
-          "command": ["speaker-test", "-t", "sine", "-f", "1200", "-l", "2"],
-          "description": "Testing complete - double tone"
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/ok testing complete.wav"],
+          "description": "Testing complete"
+        }
+      ]
+    },
+    "error_found": {
+      "linux": [
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/ugh i found some errors.wav"],
+          "description": "Found some errors"
+        },
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/I think I found the issue.wav"],
+          "description": "Found the issue"
+        }
+      ]
+    },
+    "task_start": {
+      "linux": [
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/Let's start fighting.wav"],
+          "description": "Starting difficult task"
+        }
+      ]
+    },
+    "thinking": {
+      "linux": [
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/mmm let me think about that.wav"],
+          "description": "Thinking about problem"
+        },
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/sure let me think about this.wav"],
+          "description": "Considering options"
+        }
+      ]
+    },
+    "commits_complete": {
+      "linux": [
+        {
+          "command": ["paplay", "/home/charlie/.claude/hooks/audio/commits done.wav"],
+          "description": "Commits completed"
         }
       ]
     }
   },
   "custom_sounds": {
-    "enabled": true,
+    "enabled": false,
     "sound_directory": "/home/charlie/.claude/hooks/audio/",
     "formats": [".wav", ".mp3", ".ogg", ".aiff"],
     "examples": {
-      "success": "upgrade_complete.wav",
-      "error": "error.wav",
-      "warning": "warning.wav"
+      "implementation_complete": "finished.wav",
+      "analysis_complete": "I've analyzed it.wav",
+      "testing_complete": "ok testing complete.wav",
+      "error_found": "ugh i found some errors.wav",
+      "commits_complete": "commits done.wav",
+      "task_start": "Let's start fighting.wav",
+      "thinking": "mmm let me think about that.wav"
     }
   }
 }
