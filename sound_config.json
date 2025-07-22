@@ -22,14 +22,6 @@
         {
           "command": ["speaker-test", "-t", "sine", "-f", "800", "-l", "1"],
           "description": "Speaker test - 800Hz tone"
-        },
-        {
-          "command": ["beep", "-f", "800", "-l", "300"],
-          "description": "System beep - 800Hz"
-        },
-        {
-          "command": ["echo", "-e", "\\a"],
-          "description": "Terminal bell"
         }
       ],
       "macos": [
@@ -62,14 +54,6 @@
         {
           "command": ["speaker-test", "-t", "sine", "-f", "400", "-l", "2"],
           "description": "Low tone - error indication"
-        },
-        {
-          "command": ["beep", "-f", "400", "-l", "500"],
-          "description": "Low beep - error"
-        },
-        {
-          "command": ["echo", "-e", "\\a\\a"],
-          "description": "Double terminal bell"
         }
       ],
       "macos": [
@@ -90,10 +74,6 @@
         {
           "command": ["speaker-test", "-t", "sine", "-f", "600", "-l", "1"],
           "description": "Medium tone - warning"
-        },
-        {
-          "command": ["beep", "-f", "600", "-l", "200"],
-          "description": "Medium beep - warning"
         }
       ],
       "macos": [

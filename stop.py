@@ -225,7 +225,8 @@ if __name__ == "__main__":
     
     # Play sound
     print("🔊 Playing notification sound...")
-    sound_manager.play_sound("warning")  # Use warning sound for stop events
+    # Disabled warning sound for stop events to avoid beep
+    # sound_manager.play_sound("warning")  # Use warning sound for stop events
     
     # Send Discord message with retry logic
     print("📤 Sending Discord notification...")
